@@ -18,7 +18,12 @@ pTOST_converter=function(p_tost,
                          low_eqbound, 
                          high_eqbound, 
                          bound){
-  
+
+ #------------------------------------------------------------------------
+ # Computing the SGPV when the CI around I is non-point CI (ie lb != ub)
+ #------------------------------------------------------------------------
+    if (sd!=0){  # data are variable (>< constant)
+	
   # computing t, based on p_tost
   t <- abs((qt(p_tost, df = n-1))) 
   
@@ -40,15 +45,43 @@ pTOST_converter=function(p_tost,
   lb <- I - qt(1 - alpha/2, df = n - 1) * sd/sqrt(n) # lower bound
   ub <- I + qt(1 - alpha/2, df = n - 1) * sd/sqrt(n) # upper bound
   
-  if (lb > high_eqbound | ub < low_eqbound){SGPV = 0} 
-  else if(lb > low_eqbound & ub < high_eqbound){SGPV = 1} 
-  else {SGPV <- (min(ub, high_eqbound) - max(lb, low_eqbound))/min(ub - lb, 2 * (high_eqbound - low_eqbound))}
-  
+  # Computing the SGPV
+      
+  # If H0 is non-point H0
+	    
+  if(low_eqbound!=high_eqbound){    
+  	if (p_tost>(1-alpha/2)){SGPV = 0} 
+  	else if(p_tost<(alpha/2)){SGPV = 1} 
+  	else {SGPV <- (min(ub, high_eqbound) - max(lb, low_eqbound))/min(ub - lb, 2 * (high_eqbound - low_eqbound))}}
+ 
+  # If H0 is point H0
+	    
+  else {  
+        if (p_tost >=.5 & p_tost <= 1-alpha/2){SGPV = 1/2}          # i.e. lb <= low_eqbound & low_eqbound <= ub
+                                                                    # point H0 is inside the CI around I
+        else if (p_tost>1-alpha/2){SGPV = 0                         # point H0 is outside the CI around I
+        }else {SGPV=NULL
+          print("ERROR: p_tost can not be < .5 with point H0")}}    # with point H0 p1+p2=1. Because p_tost is always (max (p1,p2), no value smaller than .5 is possible)
+	    
   return(SGPV)
 }
 
+  #------------------------------------------------------------------------
+  # Computing the SGPV when the CI around I is point CI (ie lb == ub)
+  #------------------------------------------------------------------------
+    if (sd==0 ){    # the data are constant, not variable
+    # similar result, Whatever H0 is point or non-point H0
+    
+    print ("p_tost can not be computed because t = inf")
 
+    # computing I
+    I = m-mu
 
+    if (I <= high_eqbound & I >= low_eqbound){SGPV = 1  # I is included inside H0 (when non-point H0) OR I = H0 (when point H0)
+    } else {SGPV = 0}}                                    # I is out of H0 (when non-point H0)/ I != H0 (when point H0)
+    print (paste("based on the eqbounds and I, SGPV =",SGPV))    
+
+}
 
 m <- 143.9
 mu <- 146
@@ -60,13 +93,10 @@ high_eqbound = 2
 alpha = 0.05
 
 res <- TOSTone.raw(m = m,mu = mu,sd = sd,n = n,low_eqbound = low_eqbound,high_eqbound = high_eqbound,alpha = alpha)
-pTOST_converter(p_tost=res$TOST_p1,bound="low",sd=3,n=36,alpha=.05,low_eqbound=-2,high_eqbound = 2)
 
-pTOST_converter(p_tost=res$TOST_p2,
-                bound = "high",
-                sd = 3,
-                n = 36,
-                alpha = .05,
-                low_eqbound = -2,
-                high_eqbound = 2)
+if(res$TOST_p1>res$TOST_p2){bound="low"
+}else {bound="high"}
+
+pTOST_converter(p_tost=max(res$TOST_p1,res$TOST_p2),bound=bound,sd=sd,n=n,alpha=alpha,low_eqbound=low_eqbound,high_eqbound = high_eqbound)
+
 
