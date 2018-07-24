@@ -97,6 +97,13 @@ res <- TOSTone.raw(m = m,mu = mu,sd = sd,n = n,low_eqbound = low_eqbound,high_eq
 if(res$TOST_p1>res$TOST_p2){bound="low"
 }else {bound="high"}
 
-pTOST_converter(p_tost=max(res$TOST_p1,res$TOST_p2),bound=bound,sd=sd,n=n,alpha=alpha,low_eqbound=low_eqbound,high_eqbound = high_eqbound)
+pTOST_converter(p_tost=max(res$TOST_p1,res$TOST_p2),
+		bound=bound,
+		sd=sd,
+		n=n,
+		alpha=alpha,
+		low_eqbound=low_eqbound,
+		high_eqbound = high_eqbound
+	       )
 
 
