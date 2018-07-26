@@ -99,7 +99,7 @@ res <- TOSTone.raw(m = m,
                    alpha = alpha)
 
 
-pTOST_converter(p_tost=.3,bound=bound,sd=sd,n=n,alpha=alpha,low_eqbound=low_eqbound,high_eqbound=high_eqbound)
+pTOSTone_converter(p_tost=.3,bound=bound,sd=sd,n=n,alpha=alpha,low_eqbound=low_eqbound,high_eqbound=high_eqbound)
 
 SGPV1=p_delta(mu+res$LL_CI_TTEST, mu+res$UL_CI_TTEST, mu+low_eqbound, mu+high_eqbound)
 
